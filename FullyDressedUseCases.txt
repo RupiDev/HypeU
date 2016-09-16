@@ -1,0 +1,47 @@
+Fully Dressed Use Cases
+
+The central actors would be the one user looking for groups, and the other actor would be the groups trying to post events
+
+Would the central actor be the entire database (backend) because for our project the major entity is the database 
+
+1) API Creation (Create the API)
+2) API Calls (Things calling to the API)
+3) A User searches for an event
+4) Loading the tutorial (Front)
+5) Sign up as a normal user (Back + front) (security?) (name = bad names?) (same thing for organization)
+	Need Email (Back)
+	Need Password (Back)
+	Confirm Pasword (Back)
+	Name (Back)
+	List of Universities (Drop Down, don't user select)
+
+6) Sign up as a group organizer (Back + front)
+7) Checking if the user is valid (BackEnd)
+8) Checking if the password for that specific user is valid (BackEnd)
+9) Checking if the user doesn't already exist if you make an account (BackEnd)
+10) Load all the information related to user when user signs in (BackEnd)
+11) Make all the user's information appear on the profile screen (Front + Back)
+12) Retrieve events by school in discover (Front + Back)
+13) Retrieve events by filters by school in discover (front + back)
+14) Retrieve events by searching for specific events (front + back)
+15) Retrieve events by searching for specific groups (front + back)
+16) Clicking the group or event (2 cases) in search page in order to go that specific event's or profile of group (front + back)
+17) Profile Screen (Load up information specific to the user)
+18) Changing password for account = backend
+19) Changing universities for account = backend
+20) Dropping out of university = backend
+21) Logging out of yoru account = backend
+
+Groups
+
+22) Getting information in order to post an event
+	Writing a event name (backend + front) + (bad names?)
+	Location (backend + front)
+	Date and Time (backedn + front)
+	about (200 Characters not enough) = read more (500 characters)
+
+23) Posting the event with all the data associated with 22, and saves it to the database (Mostly backend)
+24) Profile getting bio information from database
+25) Profile getting events that the group made.
+
+
