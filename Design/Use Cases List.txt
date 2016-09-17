@@ -1,13 +1,45 @@
-Fully Dressed Use Cases
+Actors
+	- User
+	- Event Organizers
+		- Must be authorized (request sent) through univserity
+	- Univserity
+		- Approve clubs, oversee events
+	- Database (Computer Actor)
 
-The central actors would be the one user looking for groups, and the other actor would be the groups trying to post events
+Use Cases
+	- Read access (guest/user both)
+		1. Query events for university
+		2. Search for events in university
+	- User account
+		3. Create account
+			- Email, password, name, university required
+			- Need to check that email isn't taken by another User
+			- Need to check security on password (uppercase letter, lowercase letter, length, special symbol, etc.)
+			- Need to send verification for account via email or text
+			- Need to hash passwords
+			- Validate universities in database
+		4. Query list of universities in alphabetical order
+		5. Query list of univserities by location
+			- User location would be necessary
+		6. Login
+			- Email and password required
+			- Need to check that email for User exists in database
+			- Need to check that password matches the email for User
+			- Need to generate auth token for authentification
+		7. Login but already logged in elsewhere
+			- Generate new auth token and invalidate other token
+		8. Logout
+			- Delete auth token for User
+	- User signed in
+		9. Query information for profile
+			- Check auth token and ensure User is correct/logged in
+		10. Follow organization
+			- 
 
-Would the central actor be the entire database (backend) because for our project the major entity is the database 
-
-1) API Creation (Create the API)
-2) API Calls (Things calling to the API)
+	- Push notifications
+		
+	
 3) A User searches for an event
-4) Loading the tutorial (Front)
 5) Sign up as a normal user (Back + front) (security?) (name = bad names?) (same thing for organization)
 	Need Email (Back)
 	Need Password (Back)
