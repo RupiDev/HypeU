@@ -1,9 +1,8 @@
 Actors
+	- Guest
 	- User
-	- Event Organizers
-		- Must be authorized (request sent) through univserity
+	- User with event admin
 	- Univserity
-		- Approve clubs, oversee events
 	- Database (Computer Actor)
 
 Use Cases
@@ -99,6 +98,10 @@ Future updates
 UX notes
 
 - When logged out, "profile" tab should be a "sign in/sign up" button
+- Default "discover" view should show all events, even when logged in
+    - One of the categories for filtering should be "all followed organizations"
+    - This category should be remembered, so next time a user opens the app they don't
+      have to activate it again
 - Users can create an organization, for which they become an admin
 - Make sure people know that you can make an organization after logging in
 	- Make the "new organization" button promininent?
