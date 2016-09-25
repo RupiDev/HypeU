@@ -1,5 +1,6 @@
 Actors
 	- Guest
+	- Client App
 	- Client User
 	- Event Admin User
 	- Univserity
