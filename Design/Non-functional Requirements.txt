@@ -1,0 +1,15 @@
+1. Security of user data
+    - Transfer of data between backend and clients
+    - Storage of data in backend
+    - Storage of password
+    - Authentication requirements
+2. Accessibility to wide range of clients
+    - Should work for both a mobile app and a website
+3. Performance of queries
+    - List of universities by location should be efficient
+    - Should not take up too much space
+    - All queries in general should be designed to be scalable
+4. Flexibility of model
+    - Allow for adding mroe features
+    - Easy to extend existing features, like adding university approval
+    - Possible to hook into university APIs in the future
