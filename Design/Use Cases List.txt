@@ -1,7 +1,7 @@
 Actors
 	- Guest
-	- User
-	- User with event admin
+	- Client User
+	- Event Admin User
 	- Univserity
 	- Database (Computer Actor)
 
