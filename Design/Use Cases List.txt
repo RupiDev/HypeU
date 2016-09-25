@@ -8,21 +8,21 @@ Actors
 
 Use Cases
 	- Read access (guest/user both)
-		1. Query ("discover") events for university
-		2. Search for events in university by text
+*		1.  Query ("discover") events for university
+*		2.  Search for events in university by text
 			- Full text search (name, organization name, location)
 			- Sorted by date/time
 			- Non-functional requirement: accuracy of search
-		3. Search for events in university by categories
+*		3.  Search for events in university by one or more categories
 			- More than one category can be specified
-		4. Query list of universities in alphabetical order
-		5. Query list of univserities by location
+		4.  Query list of universities in alphabetical order
+*		5.  Query list of univserities by location
 			- User location would be necessary
-		6. Query email address domain for specific university
+		6.  Query email address domain for specific university
 			- Matches university to @<domain>.edu
 
 	- User account
-		7. Create account
+*		7.  Create account
 			- Email username, password, name, university required
 			- Combine email username with university domain to get full email address
 			- Need to check that email isn't taken by another User
@@ -30,14 +30,14 @@ Use Cases
 			- Need to send verification for account via email
 			- Need to hash passwords
 			- Validate universities in database
-		8. Login
+*		8.  Login
 			- Email and password required
 			- Need to check that email for User exists in database
 			- Need to check that password matches the email for User
 			- Need to generate auth token for authentification
-		9. Login but logged in elsewhere (token already exists)
+		9.  Login but logged in elsewhere (token already exists)
 			- Generate new auth token and invalidate existing token
-		10. Logout
+*		10. Logout
 			- Delete auth token for User
 		11. Forgot password
 			- Need to check for valid email address
@@ -47,7 +47,7 @@ Use Cases
 	- User signed in
 		- Need to check email is valid
 		- Need to check user auth token is valid for email
-		12. Query information for profile
+*		12. Query information for profile
 			- Name, university, etc
 			- List of followed organizations and events
 			- List of organizations user is admin for
@@ -56,11 +56,11 @@ Use Cases
 			- Need to check security on new password
 		14. Delete account
 			- Removes all references from tables and x-tables
-		15. Follow organization
+*		15. Follow organization
 			- Need to verify user is part of organization's university
-		16. Follow event
+*		16. Follow event
 			- Need to verify user is part of event's university
-		17. Create an organization
+*		17. Create an organization
 			- Organization email, password, organization name required
 			- Need to check that email isn't taken by another organization
 			- Need to check security on password (uppercase letter, lowercase letter, length, special symbol, etc.)
@@ -73,19 +73,19 @@ Use Cases
 		18. Change organization email address
 			- Need to check that email isn't taken by another organization
 			- Need to send verification for account via email
-		19. Add user as admin
+*		19. Add user as admin
 			- Email username required (only username)
 			- Combine email username with university domain to get full email address
 			- Need to send verification email to user
-		20. Remove user as admin
+*		20. Remove user as admin
 			- Any admin has this power
 			- Users should be able to remove themselves
-		21. Create an event
+*		21. Create an event
 			- Event name, date required
 			- Location, time, description, image optional
-		22. Update event details
+*		22. Update event details
 			- Can change event name, location, date, time, description, image
-		23. Delete event
+*		23. Delete event
 		
 ------------------------------------------------------------------------------------
 
