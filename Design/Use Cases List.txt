@@ -3,7 +3,7 @@ Actors
 	- Client App
 	- Client User
 	- Event Admin User
-	- Univserity
+	- University
 	- Database (Computer Actor)
 
 Use Cases
