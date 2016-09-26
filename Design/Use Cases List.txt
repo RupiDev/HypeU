@@ -75,7 +75,7 @@ Use Cases
 *12		19. Add user as admin
 			- Email username required (only username)
 			- Combine email username with university domain to get full email address
-			- Need to send verification email to user
+			- Need to send confirmation email to user
 *13		20. Remove user as admin
 			- Any admin has this power
 			- Users should be able to remove themselves
