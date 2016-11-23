@@ -1,0 +1,5 @@
+1:  GET  /events/
+10: GET  /events/ID/follow?user=USERID
+11: POST /orgs/create
+12: PUT  /orgs/ID/admins/add
+14: POST /events/create
