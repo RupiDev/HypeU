@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HypeU</title>
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <script src="js/zepto.min.js"></script>
+        <script src="js/js.cookie.js"></script>
+        <script>
+            if(!Cookies.get('username')) {
+                location.replace('/login.html');
+            }
+            
+            $(() => {
+                $('body').removeClass('hidden');
+                
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'json',
+                    url: '://' + location.hostname + ':9000/events',
+                    beforeSend: (xhr, settings) => {
+                        $('#status').text('Loading events...')
+                    },
+                    success: (data, status, xhr) => {
+                        $('#status').addClass('hidden');
+                        let list = $('#event_list');
+                        for(let event of data) {
+                            let li = $('<li>').text(event.name);
+                            list.append(li);
+                        }
+                    },
+                    error: (xhr, errorType, error) => {
+                        $('#status').text('Error: ' + error);
+                    }
+                })
+            });
+        </script>
+    </head>
+    <body class="hidden">
+        <h1>Events List</h1>
+        <div id="status"></div>
+        <ul id="event_list"></ul>
+    </body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HypeU - Login</title>
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/zepto.min.js"></script>
+        <script src="js/js.cookie.js"></script>
+        <script>
+            if(Cookies.get('username')) {
+                location.replace('/index.html');
+            }
+            
+            function login() {
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: '://' + location.hostname + ':9000/login',
+                    beforeSend: (xhr, settings) => {
+                        $('#status')
+                            .text('Logging in...')
+                            .removeClass('hidden');
+                    },
+                    success: (data, status, xhr) => {
+                        $('#status').text('Logged in');
+                        Cookies.set('username', 'test');
+                        location.replace('/index.html');
+                    },
+                    error: (xhr, errorType, error) => {
+                        $('#status').text('Error: ' + error);
+                    }
+                });
+            }
+            
+            $(() => {
+                $('#login').click((evt) => {
+                    login();
+                    return false;
+                })
+            });
+        </script>
+    </head>
+    <body>
+        <h3><a id="login" href="#">Login</a></h3>
+        <div id="status" class="hidden"></div>
+    </body>
+</html>

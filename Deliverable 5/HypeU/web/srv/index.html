@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HypeU</title>
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <script src="js/zepto.min.js"></script>
+        <script src="js/js.cookie.js"></script>
+        <script>
+            if(!Cookies.get('username')) {
+                location.replace('/login.html');
+            }
+            
+            $(() => {
+                $('body').removeClass('hidden');
+                
+                const username = Cookies.get('username');
+                $('.welcome').text('Welcome user ' + username);
+            });
+        </script>
+    </head>
+    <body class="hidden">
+        <h1 class="welcome"></h1>
+        <h4>Actions</h4>
+        <ul>
+            <li><a href="events.html">Query for events</a></li>
+            <li><a href="org_create.html">Create new organization</a></li>
+        </ul>
+    </body>
+</html>

@@ -1,4 +1,5 @@
 const api = require('./api/index')
+const web = require('./web/index')
 
 api.runRestServer()
-// Same thng for web testing server
+web.runWebServer(8080)
