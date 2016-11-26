@@ -9,7 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "filehandler": "0.0.0",
     "restify": "^4.3.0",
-    "sequelize": "^3.27.0"
+    "sequelize": "^3.27.0",
+    "serve-static": "^1.11.1"
   }
 }
