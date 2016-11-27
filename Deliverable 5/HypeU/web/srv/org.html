@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HypeU</title>
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <script src="js/zepto.min.js"></script>
+        <script src="js/js.cookie.js"></script>
+        <script>
+            if(!Cookies.get('username')) {
+                location.replace('/login.html');
+            }
+            
+            let orgID = null;
+            
+            $(() => {
+                $('body').removeClass('hidden');
+                
+                let params = location.search.substring(1).split('&');
+                for(let param of params) {
+                    let [k, v] = param.split('=');
+                    if(k == 'orgID') {
+                        orgID = parseInt(v);
+                        break;
+                    }
+                }
+                
+                if(orgID) {
+                    $('.title').text("Organization " + orgID);
+                    let href = $('#adminadd').attr('href');
+                    href += '?orgID=' + orgID;
+                    $('#adminadd').attr('href', href);
+                    $('#actions').removeClass('hidden');
+                } else {
+                    $(".title").text("No organization specified");
+                }
+            });
+        </script>
+    </head>
+    <body class="hidden">
+        <h1 class="title"></h1>
+        <div id="actions" class="hidden">
+            <h4>Actions</h4>
+            <ul>
+                <li><a id="adminadd" href="org_admin_add.html">Add user as admin</a></li>
+            </ul>
+        </div>
+    </body>
+</html>

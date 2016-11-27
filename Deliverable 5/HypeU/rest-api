@@ -1,5 +1,25 @@
-1:  GET  /events/
+1:  GET  /events
+    - Should be sent JSON object with university ID
+      {universityID: ...]
+    - Should return JSON array of event objects
+      [{name: ..., description: ...}, ...]
+6:  POST /login
+    - Should be sent JSON object with username and password
+      {username: ..., password: ...}
+    - Should return JSON object with success flag and auth token if logged in
+      {success: 0 or 1, authToken: ...}
+7:  POST /logout
+    - Should return JSON object with success flag (this shouldn't fail)
+      {success: 1}
 10: GET  /events/ID/follow?user=USERID
 11: POST /orgs/create
+    - Should be sent JSON object with org name and auth token
+      {authToken: ..., orgName: ...}
+    - Should return JSON object with success flag and org ID
+      {success: 0 or 1, orgID: ...}
 12: PUT  /orgs/ID/admins/add
+    - Should be sent JSON object with auth token, admin user email, and org ID
+      {authToken: ..., userEmail: ..., authToken: ...}
+    - Should return JSON object with success flag
+      {success: 0 or 1}
 14: POST /events/create

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HypeU</title>
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <script src="js/zepto.min.js"></script>
+        <script src="js/js.cookie.js"></script>
+        <script>
+            if(!Cookies.get('username')) {
+                location.replace('/login.html');
+            }
+            
+            let orgID = null;
+            
+            $(() => {
+                $('body').removeClass('hidden');
+                
+                let params = location.search.substring(1).split('&');
+                for(let param of params) {
+                    let [k, v] = param.split('=');
+                    if(k == 'orgID') {
+                        orgID = parseInt(v);
+                        break;
+                    }
+                }
+                
+                if(orgID) {
+                    $('.title').text("Add admin user to organization " + orgID);
+                    $('#actions').removeClass('hidden');
+                } else {
+                    $(".title").text("No organization specified");
+                }
+            });
+            
+            function add_admin() {
+                let adminuser = $('#adminuser').val();
+                $.ajax({
+                    type: 'PUT',
+                    dataType: 'json',
+                    data: {authToken: Cookies.get('authtoken'), userEmail: adminuser, orgID: orgID},
+                    url: '://' + location.hostname + ':9000/orgs/' + orgID + '/admins/add',
+                    beforeSend: (xhr, settings) => {
+                        $('#status').text('Adding admin user...')
+                    },
+                    success: (data, status, xhr) => {
+                        let id = data['orgID'];
+                        $('#status').text('User ' + adminuser + ' granted admin access');
+                    },
+                    error: (xhr, errorType, error) => {
+                        $('#status').text('Error: ' + error);
+                    }
+                })
+            }
+        </script>
+    </head>
+    <body class="hidden">
+        <h1 class="title"></h1>
+        <div id="actions" class="hidden">
+            <p>
+                <input id="adminuser" type="email" placeholder="Admin Email">
+                <button onclick="add_admin()">Add Admin User</button>
+            </p>
+            <label id="status"></label>
+        </div>
+    </body>
+</html>

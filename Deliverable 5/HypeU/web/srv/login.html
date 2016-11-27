@@ -10,9 +10,10 @@
                 location.replace('/index.html');
             }
             
-            function login() {
+            function login(user, pass) {
                 $.ajax({
                     type: 'POST',
+                    data: {username: user, password: pass},
                     dataType: 'json',
                     url: '://' + location.hostname + ':9000/login',
                     beforeSend: (xhr, settings) => {
@@ -22,7 +23,8 @@
                     },
                     success: (data, status, xhr) => {
                         $('#status').text('Logged in');
-                        Cookies.set('username', 'test');
+                        Cookies.set('username', user);
+                        Cookies.set('authtoken', data['authtoken'])
                         location.replace('/index.html');
                     },
                     error: (xhr, errorType, error) => {
@@ -33,7 +35,7 @@
             
             $(() => {
                 $('#login').click((evt) => {
-                    login();
+                    login('test', 'password123');
                     return false;
                 })
             });
@@ -41,6 +43,6 @@
     </head>
     <body>
         <h3><a id="login" href="#">Login</a></h3>
-        <div id="status" class="hidden"></div>
+        <label id="status" class="hidden"></label>
     </body>
 </html>

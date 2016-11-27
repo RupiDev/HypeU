@@ -14,23 +14,20 @@
                 $('body').removeClass('hidden');
             });
             
-            function get_events() {
-                let univid = $('#univid').val();
+            function create_org() {
+                let orgname = $('#orgname').val();
                 $.ajax({
-                    type: 'GET',
+                    type: 'POST',
                     dataType: 'json',
-                    data: {universityID: univid},
-                    url: '://' + location.hostname + ':9000/events',
+                    data: {authToken: Cookies.get('authtoken'), orgName: orgname},
+                    url: '://' + location.hostname + ':9000/orgs/create',
                     beforeSend: (xhr, settings) => {
-                        $('#status').text('Loading events...')
+                        $('#status').text('Creating organization...')
                     },
                     success: (data, status, xhr) => {
-                        $('#status').addClass('hidden');
-                        let list = $('#event_list');
-                        for(let event of data) {
-                            let li = $('<li>').text(event.name);
-                            list.append(li);
-                        }
+                        let id = data['orgID'];
+                        $('#status').text('Organization created with ID ' +
+                                          '<a href="/org.html?id=' + id + '">' + id + '</a>');
                     },
                     error: (xhr, errorType, error) => {
                         $('#status').text('Error: ' + error);
@@ -40,12 +37,11 @@
         </script>
     </head>
     <body class="hidden">
-        <h1 class="title">Events List</h1>
+        <h1 class="title">Create New Organization</h1>
         <p>
-            <input id="univid" type="number" placeholder="University ID">
-            <button onclick="get_events()">Get Events</button>
+            <input id="orgname" type="text" placeholder="Organization Name">
+            <button onclick="create_org()">Create Organization</button>
         </p>
         <label id="status"></label>
-        <ul id="event_list"></ul>
     </body>
 </html>
