@@ -1,10 +1,6 @@
 // Implements REST api
 
-/*function runRestServer() {
-    console.log('running REST server')
-}
-
-module.exports.runRestServer = runRestServer*/
+module.exports.runRestServer = runRestServer
 
 
 var restify = require("restify");
@@ -16,6 +12,12 @@ server.use(restify.queryParser());
 
 // this allows you to parse the body of what you posted 
 server.use(restify.bodyParser()); 
+
+function runRestServer(port) {
+    server.listen(port, () => {
+        console.log('rest server running on port %s', port);
+    })
+}
 
 // GET
 function eventGetter(req, res, next)
@@ -63,7 +65,7 @@ function creatingOrganization(req, res, next)
 server.post('/orgs/create', creatingOrganization);
 
 // Post event
-function creatingEvents(req, res, next)
+function creatingEvent(req, res, next)
 {
     var event = Event.create({
         eventID: "sdf",
