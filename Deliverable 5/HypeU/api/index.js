@@ -2,6 +2,7 @@
 
 module.exports.runRestServer = runRestServer
 
+var database = require("./database")
 
 var restify = require("restify");
 
@@ -14,8 +15,10 @@ server.use(restify.queryParser());
 server.use(restify.bodyParser()); 
 
 function runRestServer(port) {
-    server.listen(port, () => {
-        console.log('rest server running on port %s', port);
+    database.sequelize.sync().then(() => {
+        server.listen(port, () => {
+            console.log('rest server running on port %s', port);
+        })
     })
 }
 
@@ -134,6 +137,3 @@ function logOut(req, res, next)
 }
 
 server.get('/logOut', logOut);
-
-
-
