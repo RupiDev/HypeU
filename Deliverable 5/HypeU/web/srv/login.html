@@ -15,7 +15,7 @@
                     type: 'POST',
                     data: {username: user, password: pass},
                     dataType: 'json',
-                    url: '://' + location.hostname + ':9000/login',
+                    url: 'http://' + location.hostname + ':9000/login',
                     beforeSend: (xhr, settings) => {
                         $('#status')
                             .text('Logging in...')
@@ -24,11 +24,11 @@
                     success: (data, status, xhr) => {
                         $('#status').text('Logged in');
                         Cookies.set('username', user);
-                        Cookies.set('authtoken', data['authtoken'])
+                        Cookies.set('authtoken', data['authToken'])
                         location.replace('/index.html');
                     },
                     error: (xhr, errorType, error) => {
-                        $('#status').text('Error: ' + error);
+                        $('#status').html('Error: ' + error + ' <code>' + xhr.response + '</code>');
                     }
                 });
             }

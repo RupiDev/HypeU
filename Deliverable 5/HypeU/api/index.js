@@ -63,12 +63,12 @@ function eventGetter(req, res, next)
             next();
         }).catch(function(error){
             console.log("Error is received by querying for all the events based one University");
-            res.json(400, {success: 0});
+            res.json(400, {success: 0, error: error});
         });
     })
     .catch(function(error){
         console.log("Error is received by getting University ID " + error);
-        res.json(400, {success: 0});
+        res.json(400, {success: 0, error: error});
     });
 }
 server.get('/all_events', eventGetter);
@@ -81,14 +81,19 @@ function creatingOrganization(req, res, next)
     var promise = getUserFromAuthToken(req.params.authToken);
     promise.then(function(user) 
     {
-         user.createOrganization(req.params.authToken, req.params.orgName);
-         res.json({success: 1, orgID: req.params.orgID});
-         next();
+        console.log(req.params);
+        user.createOrganization(req.params.authToken, req.params.orgName, req.params.universityID).then(function(org) {
+            res.json({success: 1, orgID: org.orgID});
+            next();
+        }).catch(function(error) {
+            console.log("Error creating organization: " + error);
+            res.json(400, {success: 0, error: error});
+        });
     })
     .catch(function(error)
     {
         console.log("Error in creating organization");
-        res.json(400, {success: 0});
+        res.json(400, {success: 0, error: error});
     });
 }
 server.post('/orgs/create', creatingOrganization);
@@ -102,22 +107,27 @@ function creatingEvent(req, res, next)
     
     promise.then(function(user)
     {
-        user.createEvent(req.params.authToken, req.params.orgID, req.params.name, req.params.description, req.params.date);
-        res.json({success: 1, eventID: req.params.event_id});
+        user.createEvent(req.params.authToken, req.params.orgID, req.params.name, req.params.description, req.params.date).then(function(event) {
+            res.json({success: 1, eventID: event.eventID});
+            next();
+        }).catch(function(error) {
+            console.log("Error creating event: " + error);
+            res.json(400, {success: 0, error: error});
+        });
     })
     .catch(function(error)
     {
         console.log("There has been an error in creating an event");
-        res.json(400, {success: 0});
+        res.json(400, {success: 0, error: error});
     });
 }
-server.post('/events/create', creatingEvent);
+server.post('/orgs/:orgID/events/create', creatingEvent);
 
 
 // PUT - used to update
 // This method will allow a user to add an admin
 // This will return a json object either of success or failure and authtoken
-function addingAdmins(res, req, next)
+function addingAdmins(req, res, next)
 {
     // this is the query
     /*User.findAll({
@@ -137,15 +147,19 @@ function addingAdmins(res, req, next)
     
     var promise = getUserFromAuthToken(req.params.authToken);
     promise.then(function(user){
-        user.addUserAsAdmin(req.params.authToken, req.params.email, req.params.orgID);
-        res.json({success: 1, authToken: req.params.authToken});
+        user.addUserAsAdmin(req.params.authToken, req.params.userEmail, req.params.orgID).then(function() {
+            res.json({success: 1, authToken: req.params.authToken});
+        }).catch(function(error) {
+            console.log("Error adding admin user: " + error);
+            res.json(400, {success: 0, error: error});
+        });
     })
     .catch(function(error){
-        console.log("There has been an error in adding the specified user as an admin");
-        res.json(400, {success: 0});
+        console.log("There has been an error in adding the specified user as an admin: " + error);
+        res.json(400, {success: 0, error: error});
     });
 }
-server.put("/orgs/ID/admins/add", addingAdmins);
+server.post("/orgs/:orgID/admins/add", addingAdmins);
 
 
 // POST
@@ -153,7 +167,7 @@ server.put("/orgs/ID/admins/add", addingAdmins);
 // Returns a json object with success and authToken
 function logIn(req, res, next)
 {
-    res.json({success: 1, authToken: req.params.authToken});
+    res.json({success: 1, authToken: 'asdf'});
     // dummy method for log in
 }
 server.post('/login', logIn);
@@ -167,5 +181,3 @@ function logOut(req, res, next)
     res.json({sucess: 1});
 }
 server.post('/logout', logOut);
-
-module.exports = service;

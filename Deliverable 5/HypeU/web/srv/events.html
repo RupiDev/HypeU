@@ -20,20 +20,21 @@
                     type: 'GET',
                     dataType: 'json',
                     data: {universityID: univid},
-                    url: '://' + location.hostname + ':9000/events',
+                    url: 'http://' + location.hostname + ':9000/all_events',
                     beforeSend: (xhr, settings) => {
                         $('#status').text('Loading events...')
                     },
                     success: (data, status, xhr) => {
                         $('#status').addClass('hidden');
                         let list = $('#event_list');
-                        for(let event of data) {
-                            let li = $('<li>').text(event.name);
+                        list.html('');
+                        for(let event of data['events']) {
+                            let li = $('<li>').html('<b>' + event.name + '</b>: ' + event.description);
                             list.append(li);
                         }
                     },
                     error: (xhr, errorType, error) => {
-                        $('#status').text('Error: ' + error);
+                        $('#status').html('Error: ' + error + ' <code>' + xhr.response + '</code>');
                     }
                 })
             }
