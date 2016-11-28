@@ -14,6 +14,9 @@ server.use(restify.queryParser());
 // this allows you to parse the body of what you posted 
 server.use(restify.bodyParser()); 
 
+// allows AJAX requests from the web server
+server.use(restify.CORS());
+
 // this is the function that will run the server
 function runRestServer(port) {
     database.sequelize.sync().then(() => {
@@ -64,7 +67,7 @@ function eventGetter(req, res, next)
         });
     })
     .catch(function(error){
-        console.log("Error is received by getting University ID");
+        console.log("Error is received by getting University ID " + error);
         res.json(400, {success: 0});
     });
 }
