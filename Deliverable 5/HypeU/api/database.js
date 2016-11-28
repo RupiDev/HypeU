@@ -167,10 +167,6 @@ var University = sequelize.define('university', {
     name: {
         type: Sequelize.STRING,
         allowNull: false
-    },
-    email: {
-        type: Sequelize.STRING,
-        allowNull: false
     }}, {
         instanceMethod: {
             queryAllEvents: function() {
