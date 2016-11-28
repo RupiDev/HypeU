@@ -21,7 +21,8 @@
         "data": {
             "orgID": 1,
             "name": "CS Club",
-            "description": "A club for CS students"
+            "description": "A club for CS students",
+            "hostUniversity": 1
         }
     },
     {
@@ -32,7 +33,8 @@
             "description": "The CS Club's first meeting of the semester.",
             "date": "2016-09-17T00:00:00.000Z",
             "longitude": 100.13,
-            "latitude": 97.33
+            "latitude": 97.33,
+            "parentOrg": 1
         }
     }
 ]
