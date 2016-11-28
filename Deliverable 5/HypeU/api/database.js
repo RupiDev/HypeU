@@ -107,6 +107,8 @@ var User = sequelize.define('user', {
                 });
                 return Promise.join(org, event, (org, event) => {
                     return org.addEvent(event);
+                }).then(() => {
+                    return event;
                 });
             },
             setOrganizationEmail: function(email, orgID) {
