@@ -1,3 +1,7 @@
+// we need to export the file
+
+var Sequelize = require('sequelize');
+
 /**
  * Sets up a connection pool on initializtion.
  * Created with aid of Sequelize tutorial...
@@ -11,9 +15,6 @@ var sequelize = new Sequelize('database', 'username', 'password', {
     min: 0,
     idle: 10000
   },
-
-  // SQLite only
-  //storage: 'path/to/database.sqlite'
 });
 
 /**
@@ -60,7 +61,7 @@ var User = sequelize.define('user', {
  * Database table for university
  */
 var University = sequelize.define('university', {
-    userID: {
+    universityID: {
         type: Sequelize.INTEGER,
         field: 'university_id',
         primaryKey: true,
@@ -125,7 +126,7 @@ var University = sequelize.define('university', {
      location: {
          type: Sequelize.STRING, // type = string?
          allowNull: false
-     }
+     },
      orgID: {
         // Is this necessary? Since the FK will be set with belongTo/hasOne/hasMany, etc.
         type: Sequelize.INTEGER,
@@ -133,9 +134,21 @@ var University = sequelize.define('university', {
         allowNull: false
     }
  });
+ // do we need a user for the event
+ // yeah we do
  
 /**
- * Foreign keys for User-Organization, User-Event, and User-University "lookup tables"
+ * Foreign keys for User-Organization, User-Event, and User-University via "cross reference tables"
  */
-User.hasMany(Organization, {through: 'user_has_roles', foreignKey: 'user_role_user_id'});
-Organization.hasMany(User, {through: 'user_has_roles', foreignKey: 'roles_identifier'});
+User.hasMany(Organization, {through: 'User', foreignKey: 'orgID'});
+Organization.hasMany(User, {through: 'Organization', foreignKey: 'userID'});
+
+User.hasMany(Event, {through: 'User', foreignKey: 'eventID'});
+Event.hasMany(User, {through: 'Event', foreignKey: 'userID'});
+
+User.hasOne(University, {foreignKey: 'universityID'});
+University.belongsTo(User, {foreignKey: 'userID'}); // this seems incorrect? since university does not have a userID?
+
+// we might need to do this
+// http://docs.sequelizejs.com/en/1.7.0/articles/express/#modelsindexjs
+//module.exports = db;
