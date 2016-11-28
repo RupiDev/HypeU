@@ -25,7 +25,7 @@ function runRestServer(port) {
 
 // this method will return a promise, and in order to get the
 // the user object we have to fufill the promise whenever we call it. 
-function getUserFromAuthToken(AuthToken)
+function getUserFromAuthToken(authToken)
 {
     var promise = database.User.findById(1); // we will return the method 
     return promise; 
@@ -75,17 +75,17 @@ server.get('/all_events', eventGetter);
 // This will return a json object either of success or failure and an orgID
 function creatingOrganization(req, res, next)
 {
-    var promise = getUserFromAuthToken("testToken");
+    var promise = getUserFromAuthToken(req.params.authToken);
     promise.then(function(user) 
     {
-         user.creatingOrganization("testToken", "testOrgName");
-         res.json({success: 1, orgID: 'testOrgID'});
+         user.createOrganization(req.params.authToken, req.params.orgName);
+         res.json({success: 1, orgID: req.params.orgID});
          res.send(200); // this indicates success
          next();
     })
     .catch(function(error)
     {
-        res.json({success: 0, orgID: 'testOrgID'});
+        res.json({success: 0, orgID: req.params.org_id});
         console.log("Error in creating organization");
         res.send(400);
     });
@@ -97,18 +97,18 @@ server.post('/orgs/create', creatingOrganization);
 // This will return a json object either of success or failure and eventID
 function creatingEvent(req, res, next)
 {
-    var promise = getUserFromAuthToken("testToken");
+    var promise = getUserFromAuthToken(req.params.authToken);
     
     promise.then(function(user)
     {
-        user.createEvent("testToken", "testOrgId", "testName", "testDescription", "testDate");
-        res.json({success: 1, eventID: 'testEventID'});
+        user.createEvent(req.params.authToken, req.params.orgID, req.params.name, req.params.description, req.params.date);
+        res.json({success: 1, eventID: req.params.event_id});
         res.send(200); // success  
     })
     .catch(function(error)
     {
         console.log("There has been an error in creating an event");
-        res.json({success: 0, eventID: "testEventID"});
+        res.json({success: 0, eventID: req.params.eventID});
         res.send(400); // error
     });
 }
@@ -136,15 +136,15 @@ function addingAdmins(res, req, next)
         res.send(400);
     });*/
     
-    var promise = getUserFromAuthToken("testToken");
+    var promise = getUserFromAuthToken(req.params.authToken);
     promise.then(function(user){
-        user.addUserAsAdmin("testToken", "testUserEmail", "testOrgID");
-        res.json({success: 1, authToken: 'testAuthToken'});
+        user.addUserAsAdmin(req.params.authToken, req.params.email, req.params.orgID);
+        res.json({success: 1, authToken: req.params.authToken});
         res.send(200);
     })
     .catch(function(error){
         console.log("There has been an error in adding the specified user as an admin");
-        res.json({success: 0, authToken: 'testAuthToken'});
+        res.json({success: 0, authToken: req.params.authToken});
         res.send(200);
     });
 }
@@ -156,7 +156,7 @@ server.put("/orgs/ID/admins/add", addingAdmins);
 // Returns a json object with success and authToken
 function logIn(req, res, next)
 {
-    res.json({success: 1, authToken: 'testAuthToken'});
+    res.json({success: 1, authToken: req.params.authToken});
     // dummy method for log in
 }
 server.post('/login', logIn);
@@ -170,3 +170,5 @@ function logOut(req, res, next)
     res.json({sucess: 1});
 }
 server.post('/logout', logOut);
+
+module.exports = service;
