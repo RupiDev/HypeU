@@ -25,25 +25,34 @@
                 }
                 
                 if(orgID) {
-                    $('.title').text("Add admin user to organization " + orgID);
+                    $('.title').text("Create event for organization " + orgID);
                     $('#actions').removeClass('hidden');
                 } else {
                     $(".title").text("No organization specified");
                 }
             });
             
-            function add_admin() {
-                let adminuser = $('#adminuser').val();
+            function create_event() {
+                let eventname = $('#eventname').val();
+                let eventdesc = $('#eventdesc').val();
+                let eventdate = $('#eventdate').val();
                 $.ajax({
                     type: 'PUT',
                     dataType: 'json',
-                    data: {authToken: Cookies.get('authtoken'), userEmail: adminuser, orgID: orgID},
-                    url: '://' + location.hostname + ':9000/orgs/' + orgID + '/admins/add',
+                    data: {
+                        authToken: Cookies.get('authtoken'),
+                        orgID: orgID,
+                        name: eventname,
+                        description: eventdesc,
+                        date: eventdate
+                    },
+                    url: '://' + location.hostname + ':9000/orgs/' + orgID + '/events/create',
                     beforeSend: (xhr, settings) => {
-                        $('#status').text('Adding admin user...')
+                        $('#status').text('Creating event...')
                     },
                     success: (data, status, xhr) => {
-                        $('#status').text('User ' + adminuser + ' granted admin access');
+                        let id = data['eventID'];
+                        $('#status').text('Event created with ID ' + id + ' for organization ' + orgID);
                     },
                     error: (xhr, errorType, error) => {
                         $('#status').text('Error: ' + error);
@@ -56,8 +65,10 @@
         <h1 class="title"></h1>
         <div id="actions" class="hidden">
             <div>
-                <input id="adminuser" type="email" placeholder="Admin Email">
-                <button onclick="add_admin()">Add Admin User</button>
+                <div><input id="eventname" type="text" placeholder="Event Name"></div>
+                <div><input id="eventdesc" type="text" placeholder="Event Description"></div>
+                <div><input id="eventdate" type="date" placeholder="Event Date"></div>
+                <button onclick="create_event()">Create Event</button>
             </div>
             <br>
             <div>

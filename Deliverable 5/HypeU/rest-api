@@ -1,4 +1,4 @@
-1:  GET  /events
+1:  GET  /all_events
     - Should be sent JSON object with university ID
       {universityID: ...]
     - Should return JSON array of event objects
@@ -22,4 +22,8 @@
       {authToken: ..., userEmail: ..., authToken: ...}
     - Should return JSON object with success flag
       {success: 0 or 1}
-14: POST /events/create
+14: POST /orgs/ID/events/create
+    - Should be sent JSON object with auth token, org ID, and event info
+      {authToken: ..., orgID: ..., name: ..., description: ..., date: ...}
+    - Should return JSON object with success flag and event ID
+      {success: 0 or 1, eventID: ...}

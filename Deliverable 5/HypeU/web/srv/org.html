@@ -12,6 +12,12 @@
             
             let orgID = null;
             
+            function addOrg(a) {
+                let href = a.attr('href');
+                href += '?orgID=' + orgID;
+                a.attr('href', href);
+            }
+            
             $(() => {
                 $('body').removeClass('hidden');
                 
@@ -26,9 +32,8 @@
                 
                 if(orgID) {
                     $('.title').text("Organization " + orgID);
-                    let href = $('#adminadd').attr('href');
-                    href += '?orgID=' + orgID;
-                    $('#adminadd').attr('href', href);
+                    addOrg($('#adminadd'));
+                    addOrg($('#eventcreate'));
                     $('#actions').removeClass('hidden');
                 } else {
                     $(".title").text("No organization specified");
@@ -42,6 +47,7 @@
             <h4>Actions</h4>
             <ul>
                 <li><a id="adminadd" href="org_admin_add.html">Add user as admin</a></li>
+                <li><a id="eventcreate" href="event_create.html">Create event</a></li>
             </ul>
         </div>
     </body>
