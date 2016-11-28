@@ -14,6 +14,9 @@ server.use(restify.queryParser());
 // this allows you to parse the body of what you posted 
 server.use(restify.bodyParser()); 
 
+// allows AJAX requests from the web server
+server.use(restify.CORS());
+
 // this is the function that will run the server
 function runRestServer(port) {
     database.sequelize.sync().then(() => {
@@ -54,18 +57,18 @@ function eventGetter(req, res, next)
     }).then(function(university) {
         university.queryAllEvents().then(function(events) {
             res.json({
+                success: 1,
                 events: events // this will get the events 
             });
-            res.send(200);
             next();
         }).catch(function(error){
             console.log("Error is received by querying for all the events based one University");
-            res.send(400);
+            res.json(400, {success: 0, error: error});
         });
     })
     .catch(function(error){
-        console.log("Error is received by getting University ID");
-        res.send(400);
+        console.log("Error is received by getting University ID " + error);
+        res.json(400, {success: 0, error: error});
     });
 }
 server.get('/all_events', eventGetter);
@@ -78,16 +81,19 @@ function creatingOrganization(req, res, next)
     var promise = getUserFromAuthToken(req.params.authToken);
     promise.then(function(user) 
     {
-         user.createOrganization(req.params.authToken, req.params.orgName);
-         res.json({success: 1, orgID: req.params.orgID});
-         res.send(200); // this indicates success
-         next();
+        console.log(req.params);
+        user.createOrganization(req.params.authToken, req.params.orgName, req.params.universityID).then(function(org) {
+            res.json({success: 1, orgID: org.orgID});
+            next();
+        }).catch(function(error) {
+            console.log("Error creating organization: " + error);
+            res.json(400, {success: 0, error: error});
+        });
     })
     .catch(function(error)
     {
-        res.json({success: 0, orgID: req.params.org_id});
         console.log("Error in creating organization");
-        res.send(400);
+        res.json(400, {success: 0, error: error});
     });
 }
 server.post('/orgs/create', creatingOrganization);
@@ -101,24 +107,27 @@ function creatingEvent(req, res, next)
     
     promise.then(function(user)
     {
-        user.createEvent(req.params.authToken, req.params.orgID, req.params.name, req.params.description, req.params.date);
-        res.json({success: 1, eventID: req.params.event_id});
-        res.send(200); // success  
+        user.createEvent(req.params.authToken, req.params.orgID, req.params.name, req.params.description, req.params.date).then(function(event) {
+            res.json({success: 1, eventID: event.eventID});
+            next();
+        }).catch(function(error) {
+            console.log("Error creating event: " + error);
+            res.json(400, {success: 0, error: error});
+        });
     })
     .catch(function(error)
     {
         console.log("There has been an error in creating an event");
-        res.json({success: 0, eventID: req.params.eventID});
-        res.send(400); // error
+        res.json(400, {success: 0, error: error});
     });
 }
-server.post('/events/create', creatingEvent);
+server.post('/orgs/:orgID/events/create', creatingEvent);
 
 
 // PUT - used to update
 // This method will allow a user to add an admin
 // This will return a json object either of success or failure and authtoken
-function addingAdmins(res, req, next)
+function addingAdmins(req, res, next)
 {
     // this is the query
     /*User.findAll({
@@ -138,17 +147,19 @@ function addingAdmins(res, req, next)
     
     var promise = getUserFromAuthToken(req.params.authToken);
     promise.then(function(user){
-        user.addUserAsAdmin(req.params.authToken, req.params.email, req.params.orgID);
-        res.json({success: 1, authToken: req.params.authToken});
-        res.send(200);
+        user.addUserAsAdmin(req.params.authToken, req.params.userEmail, req.params.orgID).then(function() {
+            res.json({success: 1, authToken: req.params.authToken});
+        }).catch(function(error) {
+            console.log("Error adding admin user: " + error);
+            res.json(400, {success: 0, error: error});
+        });
     })
     .catch(function(error){
-        console.log("There has been an error in adding the specified user as an admin");
-        res.json({success: 0, authToken: req.params.authToken});
-        res.send(200);
+        console.log("There has been an error in adding the specified user as an admin: " + error);
+        res.json(400, {success: 0, error: error});
     });
 }
-server.put("/orgs/ID/admins/add", addingAdmins);
+server.post("/orgs/:orgID/admins/add", addingAdmins);
 
 
 // POST
@@ -156,7 +167,7 @@ server.put("/orgs/ID/admins/add", addingAdmins);
 // Returns a json object with success and authToken
 function logIn(req, res, next)
 {
-    res.json({success: 1, authToken: req.params.authToken});
+    res.json({success: 1, authToken: 'asdf'});
     // dummy method for log in
 }
 server.post('/login', logIn);

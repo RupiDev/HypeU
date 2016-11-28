@@ -44,15 +44,8 @@ var User = sequelize.define('user', {
             checkAuthTokenValid: function(authToken) {
                 return Promise.resolve(true);
             },
-            checkOrgAdmin: function(user, org) {
-                return org.queryAdminList().then((adminList) => {
-                    for (var i = 0; i < adminList.length; i++) {
-                        if (adminList[i].email === this.email) {
-                            return true;
-                        }
-                    }
-                    return false;
-                })
+            checkOrgAdmin: function(user) {
+                return Promise.resolve(user.orgAdminOf != null);
             },
             checkOrgNameValid: function(orgName) {
                 return orgName != null && orgName != "";
@@ -72,48 +65,54 @@ var User = sequelize.define('user', {
             }
         },
         instanceMethods: {
-            createOrganization: function(authToken, orgName) {
-                return Organization.findOne({ where: {orgName: orgName} }).then((foundOrg) => {
+            createOrganization: function(authToken, orgName, universityID) {
+                return Organization.findOne({ where: {name: orgName} }).then((foundOrg) => {
                     if (foundOrg) {
                         throw "org already exists";
                     }
-                    return this.checkAuthTokenValid(authToken);
+                    return User.checkAuthTokenValid(authToken);
                 }).then((authValid) => {
                     if(!authValid) {
                         throw "auth token not valid";
                     }
-                    if (!this.checkOrgNameValid(orgName)) {
+                    if (!User.checkOrgNameValid(orgName)) {
                         throw "org name not valid";
                     }
-                    return this.checkOrgAdmin(this);
+                    return User.checkOrgAdmin(this);
                 }).then((isAdmin) => {
-                    if(!isAdmin) {
-                        throw "user is not org admin";
+                    if(isAdmin) {
+                        throw "user is already admin for another org";
                     }
-                    return Organization.create({orgName: orgName});
+                    return Organization.create({name: orgName, hostUniversity: universityID});
+                }).then((org) => {
+                    // Make this user the first admin of the new org
+                    return org.addAdminUser(this);
                 });
             },
             createEvent: function(authToken, orgID, name, description, date) {
                 var org = Organization.findById(orgID);
-                var event = org.then((org) => {
-                    return this.checkAuthTokenValid(authToken);
+                var valid = org.then((org) => {
+                    return User.checkAuthTokenValid(authToken);
                 }).then((authValid) => {
                     if(!authValid) {
                         throw "auth token not valid";
                     }
-                    return this.checkOrgIDValid(orgID);
-                }).then((isValid) => {
+                    return User.checkOrgIDValid(orgID);
+                });
+                var event = Promise.join(org, valid, (org, isValid) => {
                     if(!isValid) {
                         throw "org id not valid";
                     }
-                    return Event.create({name: name, description: description, date: date});
+                    return Event.create({name: name, description: description, date: date, parentOrg: org.orgID});
                 });
                 return Promise.join(org, event, (org, event) => {
                     return org.addEvent(event);
+                }).then(() => {
+                    return event;
                 });
             },
             setOrganizationEmail: function(email, orgID) {
-                if (!this.checkEmailValid(email)) {
+                if (!User.checkEmailValid(email)) {
                     return Promise.reject("email not valid");
                 }
                 return Organization.findById(orgID).then((org) => {
@@ -121,19 +120,19 @@ var User = sequelize.define('user', {
                 });
             },
             addUserAsAdmin: function(authToken, userEmail, orgID) {
-                var org = this.checkAuthTokenValid(authToken).then((authValid) => {
+                var org = User.checkAuthTokenValid(authToken).then((authValid) => {
                     if (!authValid) {
                         throw "auth token not valid";
                     }
-                    if (!this.checkEmailValid(userEmail)) {
+                    if (!User.checkEmailValid(userEmail)) {
                         throw "email not valid";
                     }
-                    return this.checkEmailExists(userEmail);
+                    return User.checkEmailExists(userEmail);
                 }).then((emailExists) => {
                     if(!emailExists) {
                         throw "admin email does not exist";
                     }
-                    return this.checkOrgIDValid(orgID);
+                    return User.checkOrgIDValid(orgID);
                 }).then((orgValid) => {
                     if(!orgValid) {
                         throw "org id not valid";
@@ -141,13 +140,19 @@ var User = sequelize.define('user', {
                     return Organization.findById(orgID);
                 });
                 var isAdmin = org.then((org) => {
-                    return this.checkOrgAdmin(this);
+                    return User.checkOrgAdmin(this);
                 });
-                return Promise.join(org, isAdmin, (org, isAdmin) => {
+                var user = Promise.join(org, isAdmin, (org, isAdmin) => {
                     if(!isAdmin) {
-                        throw "user is not admin";
+                        throw "current user is not admin";
                     }
-                    return org.addAdminUser(this); // TODO not sure if using this will work
+                    return User.find({where: {email: userEmail}});
+                });
+                return Promise.join(org, user, (org, user) => {
+                    if(user.orgAdminOf) {
+                        throw "new user is already admin for an org";
+                    }
+                    return org.addAdminUser(user);
                 })
             }
         }
@@ -168,9 +173,18 @@ var University = sequelize.define('university', {
         type: Sequelize.STRING,
         allowNull: false
     }}, {
-        instanceMethod: {
+        instanceMethods: {
             queryAllEvents: function() {
-                return Event.findAll({ where: { universityID: this.universityID } });
+                return Event.findAll({
+                    include: [
+                        {
+                            model: Organization,
+                            where: {
+                                hostUniversity: this.universityID
+                            }
+                        }
+                    ]
+                });
             }
         }
     }
@@ -192,6 +206,10 @@ var Organization = sequelize.define('organization', {
     },
     description: {
         type: Sequelize.TEXT
+    },
+    hostUniversity: {
+        type: Sequelize.INTEGER,
+        allowNull: false
     }},
     {
         classMethods: {
@@ -228,10 +246,12 @@ var Event = sequelize.define('event', {
     },
     longitude: {
         type: Sequelize.DECIMAL,
-        allowNull: false
     },
     latitude: {
         type: Sequelize.DECIMAL,
+    },
+    parentOrg: {
+        type: Sequelize.INTEGER,
         allowNull: false
     }},
     {
@@ -244,13 +264,15 @@ var Event = sequelize.define('event', {
         
     }   
 });
- 
+
 /**
  * Foreign keys for User-Organization, User-Event, and User-University via "cross reference tables"
  */
 University.hasMany(User, {as: 'Students'});
-University.hasMany(Organization, {as: 'Orgs'});
-Organization.hasMany(Event, {as: 'Events'});
+University.hasMany(Organization, {as: 'Orgs', foreignKey: 'hostUniversity'});
+
+Organization.hasMany(Event, {as: 'Events', foreignKey: 'parentOrg'});
+Event.belongsTo(Organization, {foreignKey: 'parentOrg'});
  
 User.belongsToMany(Organization, { as: 'FollowsOrgs', through: 'UserOrganization'});
 Organization.belongsToMany(User, { as: 'FollowingUsers', through: 'UserOrganization'});
@@ -258,15 +280,10 @@ Organization.belongsToMany(User, { as: 'FollowingUsers', through: 'UserOrganizat
 User.belongsToMany(Event, { as: 'FollowsEvents', through: 'UserEvent'});
 Event.belongsToMany(User, { as: 'FollowingUsers', through: 'UserEvent'});
 
-Organization.hasMany(User, {as: 'AdminUsers'});
-
-// we might need to do this
-// http://docs.sequelizejs.com/en/1.7.0/articles/express/#modelsindexjs
+Organization.hasMany(User, {as: 'AdminUsers', foreignKey: 'orgAdminOf'})
 
 module.exports.sequelize = sequelize
 module.exports.University = University
 module.exports.Organization = Organization
 module.exports.Event = Event
 module.exports.User = User
-
-

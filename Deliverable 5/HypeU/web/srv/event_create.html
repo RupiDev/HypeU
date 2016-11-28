@@ -37,7 +37,7 @@
                 let eventdesc = $('#eventdesc').val();
                 let eventdate = $('#eventdate').val();
                 $.ajax({
-                    type: 'PUT',
+                    type: 'POST',
                     dataType: 'json',
                     data: {
                         authToken: Cookies.get('authtoken'),
@@ -46,7 +46,7 @@
                         description: eventdesc,
                         date: eventdate
                     },
-                    url: '://' + location.hostname + ':9000/orgs/' + orgID + '/events/create',
+                    url: 'http://' + location.hostname + ':9000/orgs/' + orgID + '/events/create',
                     beforeSend: (xhr, settings) => {
                         $('#status').text('Creating event...')
                     },
@@ -55,7 +55,7 @@
                         $('#status').text('Event created with ID ' + id + ' for organization ' + orgID);
                     },
                     error: (xhr, errorType, error) => {
-                        $('#status').text('Error: ' + error);
+                        $('#status').html('Error: ' + error + ' <code>' + xhr.response + '</code>');
                     }
                 })
             }

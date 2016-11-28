@@ -15,22 +15,23 @@
             });
             
             function create_org() {
+                let univid = $('#univid').val();
                 let orgname = $('#orgname').val();
                 $.ajax({
                     type: 'POST',
                     dataType: 'json',
-                    data: {authToken: Cookies.get('authtoken'), orgName: orgname},
-                    url: '://' + location.hostname + ':9000/orgs/create',
+                    data: {authToken: Cookies.get('authtoken'), orgName: orgname, universityID: univid},
+                    url: 'http://' + location.hostname + ':9000/orgs/create',
                     beforeSend: (xhr, settings) => {
                         $('#status').text('Creating organization...')
                     },
                     success: (data, status, xhr) => {
                         let id = data['orgID'];
-                        $('#status').text('Organization created with ID ' +
-                                          '<a href="/org.html?id=' + id + '">' + id + '</a>');
+                        $('#status').html('Organization created with ID ' +
+                                          '<a href="/org.html?orgID=' + id + '">' + id + '</a>');
                     },
                     error: (xhr, errorType, error) => {
-                        $('#status').text('Error: ' + error);
+                        $('#status').html('Error: ' + error + ' <code>' + xhr.response + '</code>');
                     }
                 })
             }
@@ -39,7 +40,8 @@
     <body class="hidden">
         <h1 class="title">Create New Organization</h1>
         <div>
-            <input id="orgname" type="text" placeholder="Organization Name">
+            <div><input id="univid" type="text" placeholder="University ID"></div>
+            <div><input id="orgname" type="text" placeholder="Organization Name"></div>
             <button onclick="create_org()">Create Organization</button>
         </div>
         <br>

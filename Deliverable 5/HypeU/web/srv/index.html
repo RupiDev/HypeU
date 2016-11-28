@@ -10,11 +10,22 @@
                 location.replace('/login.html');
             }
             
+            function logout() {
+                Cookies.remove('username');
+                Cookies.remove('authtoken');
+                location.reload();
+            }
+            
             $(() => {
                 $('body').removeClass('hidden');
                 
                 const username = Cookies.get('username');
                 $('.title').text('Welcome user ' + username);
+                
+                $('#logout').click((evt) => {
+                    logout();
+                    return false;
+                });
             });
         </script>
     </head>
@@ -24,6 +35,7 @@
         <ul>
             <li><a href="events.html">Query for events</a></li>
             <li><a href="org_create.html">Create new organization</a></li>
+            <li><a id="logout" href="#">Logout</a></li>
         </ul>
     </body>
 </html>

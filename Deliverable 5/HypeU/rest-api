@@ -1,8 +1,8 @@
 1:  GET  /all_events
     - Should be sent JSON object with university ID
       {universityID: ...]
-    - Should return JSON array of event objects
-      [{name: ..., description: ...}, ...]
+    - Should return JSON object containing array of event objects
+      {events: [{name: ..., description: ...}, ...]}
 6:  POST /login
     - Should be sent JSON object with username and password
       {username: ..., password: ...}
@@ -17,7 +17,7 @@
       {authToken: ..., orgName: ...}
     - Should return JSON object with success flag and org ID
       {success: 0 or 1, orgID: ...}
-12: PUT  /orgs/ID/admins/add
+12: POST  /orgs/ID/admins/add
     - Should be sent JSON object with auth token, admin user email, and org ID
       {authToken: ..., userEmail: ..., authToken: ...}
     - Should return JSON object with success flag

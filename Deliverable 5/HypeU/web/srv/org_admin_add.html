@@ -35,10 +35,10 @@
             function add_admin() {
                 let adminuser = $('#adminuser').val();
                 $.ajax({
-                    type: 'PUT',
+                    type: 'POST',
                     dataType: 'json',
                     data: {authToken: Cookies.get('authtoken'), userEmail: adminuser, orgID: orgID},
-                    url: '://' + location.hostname + ':9000/orgs/' + orgID + '/admins/add',
+                    url: 'http://' + location.hostname + ':9000/orgs/' + orgID + '/admins/add',
                     beforeSend: (xhr, settings) => {
                         $('#status').text('Adding admin user...')
                     },
@@ -46,7 +46,7 @@
                         $('#status').text('User ' + adminuser + ' granted admin access');
                     },
                     error: (xhr, errorType, error) => {
-                        $('#status').text('Error: ' + error);
+                        $('#status').html('Error: ' + error + ' <code>' + xhr.response + '</code>');
                     }
                 })
             }
