@@ -1,6 +1,7 @@
 // we need to export the file
 
 var Sequelize = require('sequelize');
+var Promise = require('bluebird');
 
 /**
  * Sets up a connection pool on initializtion.
@@ -41,15 +42,17 @@ var User = sequelize.define('user', {
     {
         classMethods: {
             checkAuthTokenValid: function(authToken) {
-                return true;
+                return Promise.resolve(true);
             },
             checkOrgAdmin: function(user, org) {
-                var adminList = org.queryAdminList();
+                return org.queryAdminList().then((adminList) => {
                     for (var i = 0; i < adminList.length; i++) {
                         if (adminList[i].email === this.email) {
                             return true;
                         }
                     }
+                    return false;
+                })
             },
             checkOrgNameValid: function(orgName) {
                 return orgName != null && orgName != "";
@@ -58,57 +61,94 @@ var User = sequelize.define('user', {
                 return email != null && email != "";
             },
             checkEmailExists: function(email) {
-                return User.findOne({ where: {email: email}});
+                return User.findOne({ where: {email: email}}).then((user) => {
+                    return user != null;
+                });
             },
             checkOrgIDValid: function(orgID) {
-                return Organization.findById(orgID);
+                return Organization.findById(orgID).then((org) => {
+                    return org != null;
+                });
             }
         },
         instanceMethods: {
             createOrganization: function(authToken, orgName) {
-                var foundOrg = Organization.findOne({ where: {orgName: orgName} });
-                if (!foundOrg) {
-                    if (this.checkAuthTokenValid(authToken)) {
-                        if (this.checkOrgNameValid(orgName)) {
-                            if (this.checkOrgAdmin(this)) {
-                                return Organization.create({orgName: orgName});
-                            }
-                        }
+                return Organization.findOne({ where: {orgName: orgName} }).then((foundOrg) => {
+                    if (foundOrg) {
+                        throw "org already exists";
                     }
-                }
-                return null;
+                    return this.checkAuthTokenValid(authToken);
+                }).then((authValid) => {
+                    if(!authValid) {
+                        throw "auth token not valid";
+                    }
+                    if (!this.checkOrgNameValid(orgName)) {
+                        throw "org name not valid";
+                    }
+                    return this.checkOrgAdmin(this);
+                }).then((isAdmin) => {
+                    if(!isAdmin) {
+                        throw "user is not org admin";
+                    }
+                    return Organization.create({orgName: orgName});
+                });
             },
             createEvent: function(authToken, orgID, name, description, date) {
-                if (this.checkAuthTokenValid(authToken)) {
-                    if (this.checkOrgIDValid(orgID)) {
-                        var org = Organization.findById(orgID);
-                        var event = Event.create({name: name, description: description, date: date});
-                        var eventsList = org.getEvents();;
-                        eventsList.append(event);
-                        org.setEvents(eventsList);
-                        return event;
+                var org = Organization.findById(orgID);
+                var event = org.then((org) => {
+                    return this.checkAuthTokenValid(authToken);
+                }).then((authValid) => {
+                    if(!authValid) {
+                        throw "auth token not valid";
                     }
-                }
-                return null;
+                    return this.checkOrgIDValid(orgID);
+                }).then((isValid) => {
+                    if(!isValid) {
+                        throw "org id not valid";
+                    }
+                    return Event.create({name: name, description: description, date: date});
+                });
+                return Promise.join(org, event, (org, event) => {
+                    return org.addEvent(event);
+                });
             },
-            setOrganizationEmail: function(email, organization) {
-                if (this.checkEmailValid(email)) {
-                    return organization.updateAttributes({ email: email});
+            setOrganizationEmail: function(email, orgID) {
+                if (!this.checkEmailValid(email)) {
+                    return Promise.reject("email not valid");
                 }
+                return Organization.findById(orgID).then((org) => {
+                    return org.updateAttributes({ email: email});
+                });
             },
             addUserAsAdmin: function(authToken, userEmail, orgID) {
-                if (this.checkAuthTokenValid(authToken)) {
-                    if (this.checkEmailValid && this.checkEmailExists) {
-                        if (this.checkOrgIDValid(orgID)) {
-                            var org = Organization.findById(orgID);
-                            if (org) {
-                                if (this.checkOrgAdmin(this)) {
-                                       org.addAdminUser(this);
-                                }
-                            }
-                        }
+                var org = this.checkAuthTokenValid(authToken).then((authValid) => {
+                    if (!authValid) {
+                        throw "auth token not valid";
                     }
-                }
+                    if (!this.checkEmailValid(userEmail)) {
+                        throw "email not valid";
+                    }
+                    return this.checkEmailExists(userEmail);
+                }).then((emailExists) => {
+                    if(!emailExists) {
+                        throw "admin email does not exist";
+                    }
+                    return this.checkOrgIDValid(orgID);
+                }).then((orgValid) => {
+                    if(!orgValid) {
+                        throw "org id not valid";
+                    }
+                    return Organization.findById(orgID);
+                });
+                var isAdmin = org.then((org) => {
+                    return this.checkOrgAdmin(this);
+                });
+                return Promise.join(org, isAdmin, (org, isAdmin) => {
+                    if(!isAdmin) {
+                        throw "user is not admin";
+                    }
+                    return org.addAdminUser(this); // TODO not sure if using this will work
+                })
             }
         }
     }
@@ -160,12 +200,7 @@ var Organization = sequelize.define('organization', {
     {
         instanceMethods: {
             queryAdminList: function() {
-                User.findAll({ where: { orgID: this.orgID } });
-            },
-            addAdminUser: function(user) {
-                var adminList = this.queryAdminList();
-                adminList.push(user);
-                this.adminList = adminList;
+                return this.getAdminUsers();
             }
         }
 });
@@ -214,7 +249,7 @@ Organization.belongsToMany(User, { as: 'FollowingUsers', through: 'UserOrganizat
 User.belongsToMany(Event, { as: 'FollowsEvents', through: 'UserEvent'});
 Event.belongsToMany(User, { as: 'FollowingUsers', through: 'UserEvent'});
 
-Organization.hasMany(User, {as: 'UserAdmin'})
+Organization.hasMany(User, {as: 'AdminUsers'})
 
 // we might need to do this
 // http://docs.sequelizejs.com/en/1.7.0/articles/express/#modelsindexjs
