@@ -59,12 +59,12 @@ function eventGetter(req, res, next)
             res.send(200);
             next();
         }).catch(function(error){
-            console.log("Error is recieved by querying for all the events based one University");
+            console.log("Error is received by querying for all the events based one University");
             res.send(400);
         })
     })
     .catch(function(error){
-        console.log("Error is recieved by getting University ID");
+        console.log("Error is received by getting University ID");
         res.send(400);
     });
 }
@@ -86,7 +86,7 @@ function creatingOrganization(req, res, next)
     .catch(function(error)
     {
         res.json({success: 0, orgID: 'testOrgID'});
-        console.log("Error in creating orgainzation");
+        console.log("Error in creating organization");
         res.send(400);
     });
 }
@@ -116,11 +116,8 @@ server.post('/events/create', creatingEvent);
 
 
 // PUT - used to update
-//12: PUT  /orgs/ID/admins/add
-// first query the database
-// then update it, using the query parameters
-// then save it
-
+// This method will allow a user to add an admin
+// This will return a json object either of success or failure and authtoken
 function addingAdmins(res, req, next)
 {
     // this is the query
@@ -155,6 +152,8 @@ server.put("/orgs/ID/admins/add", addingAdmins);
 
 
 // POST
+// This method is used to login, basically used as a dummy method
+// Returns a 
 function logIn(req, res, next)
 {
     res.json({success: 1, authToken: 'testAuthToken'})
