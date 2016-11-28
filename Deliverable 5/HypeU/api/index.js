@@ -171,4 +171,5 @@ function logOut(req, res, next)
 }
 server.post('/logout', logOut);
 
-module.exports = service;
+module.exports.getUserFromAuthToken = getUserFromAuthToken;
+module.exports.eventGetter = eventGetter;

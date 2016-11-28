@@ -4,7 +4,7 @@
   "description": "College event sharing app",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "apitest": "mocha"
   },
   "author": "",
   "license": "ISC",
@@ -15,5 +15,10 @@
     "sequelize": "^3.27.0",
     "serve-static": "^1.11.1",
     "sqlite3": "^3.1.8"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "sinon": "^1.17.6"
   }
 }

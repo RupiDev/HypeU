@@ -194,6 +194,10 @@ var Organization = sequelize.define('organization', {
         type: Sequelize.TEXT
     }},
     {
+        classMethods: {
+            checkAuthTokenValidForOrganization: function(authToken) {
+                return Promise.resolve(true);
+            }},
         instanceMethods: {
             queryAdminList: function() {
                 return this.getAdminUsers();
@@ -229,8 +233,17 @@ var Event = sequelize.define('event', {
     latitude: {
         type: Sequelize.DECIMAL,
         allowNull: false
-    }}
- );
+    }},
+    {
+    classMethods: {
+        checkEventIDValid: function(eventID) {
+            return Organization.findById(eventID).then((event) => {
+                return event != null;
+            });
+        }        
+        
+    }   
+});
  
 /**
  * Foreign keys for User-Organization, User-Event, and User-University via "cross reference tables"
@@ -245,7 +258,7 @@ Organization.belongsToMany(User, { as: 'FollowingUsers', through: 'UserOrganizat
 User.belongsToMany(Event, { as: 'FollowsEvents', through: 'UserEvent'});
 Event.belongsToMany(User, { as: 'FollowingUsers', through: 'UserEvent'});
 
-Organization.hasMany(User, {as: 'AdminUsers'})
+Organization.hasMany(User, {as: 'AdminUsers'});
 
 // we might need to do this
 // http://docs.sequelizejs.com/en/1.7.0/articles/express/#modelsindexjs
@@ -255,3 +268,5 @@ module.exports.University = University
 module.exports.Organization = Organization
 module.exports.Event = Event
 module.exports.User = User
+
+

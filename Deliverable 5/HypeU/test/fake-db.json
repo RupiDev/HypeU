@@ -1,6 +1,6 @@
 [
    {
-      "model": "User",
+      "model": "user",
       "data": {
           "userID": 1,
           "name": "John Smith",
@@ -10,15 +10,14 @@
         }
     },
     {
-        "model": "University",
+        "model": "university",
         "data": {
             "universityID": 1,
-            "name": "Virginia Tech",
-            "email": "vt@vt.edu"
+            "name": "Virginia Tech"
         }
     },
     {
-        "model": "Organization",
+        "model": "organization",
         "data": {
             "orgID": 1,
             "name": "CS Club",
@@ -26,7 +25,7 @@
         }
     },
     {
-        "model": "Event",
+        "model": "event",
         "data": {
             "eventID": 1,
             "name": "CS Club First Meeting",
