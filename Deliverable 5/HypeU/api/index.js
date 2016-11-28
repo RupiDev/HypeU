@@ -54,18 +54,18 @@ function eventGetter(req, res, next)
     }).then(function(university) {
         university.queryAllEvents().then(function(events) {
             res.json({
+                success: 1,
                 events: events // this will get the events 
             });
-            res.send(200);
             next();
         }).catch(function(error){
             console.log("Error is received by querying for all the events based one University");
-            res.send(400);
+            res.json(400, {success: 0});
         });
     })
     .catch(function(error){
         console.log("Error is received by getting University ID");
-        res.send(400);
+        res.json(400, {success: 0});
     });
 }
 server.get('/all_events', eventGetter);
@@ -80,14 +80,13 @@ function creatingOrganization(req, res, next)
     {
          user.creatingOrganization("testToken", "testOrgName");
          res.json({success: 1, orgID: 'testOrgID'});
-         res.send(200); // this indicates success
          next();
     })
     .catch(function(error)
     {
         res.json({success: 0, orgID: 'testOrgID'});
         console.log("Error in creating organization");
-        res.send(400);
+        res.json(400, {success: 0});
     });
 }
 server.post('/orgs/create', creatingOrganization);
