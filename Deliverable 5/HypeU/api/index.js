@@ -14,6 +14,7 @@ server.use(restify.queryParser());
 // this allows you to parse the body of what you posted 
 server.use(restify.bodyParser()); 
 
+// this is the function that will run the server
 function runRestServer(port) {
     database.sequelize.sync().then(() => {
         server.listen(port, () => {
@@ -22,73 +23,92 @@ function runRestServer(port) {
     })
 }
 
+// this method will return a promise, and in order to get the
+// the user object we have to fufill the promise whenever we call it. 
+function getUserFromAuthToken(AuthToken)
+{
+    var promise = database.User.findById(1); // we will return the method 
+    return promise; 
+ 
+}
+   // promise.then(function(user) {
+    //     user.whatever;
+    // })
+
 // GET
+// no auth token needed,
+// need to query based on unviersity ID, and then get university, and do findAll
+// on that university
+
+// This is a GET Method
+// In this method we will get all the events based on the specified university ID
+// We will return a json object for events
 function eventGetter(req, res, next)
 {
-    res.json({
-        events: [Event.findAll({})] // this will get the events 
-    });
-    next();
-}
-server.get('/events', eventGetter);
-
-// GET
-function getEventFollower(req, res, next)
-{
-    res.json({
-        events: [Event.getUser ] // or something like that, we need to add the user]
+    // first need to make a query
+    // then you are getting 
+    University.find({
+        where: {
+            universityID: req.param.universityID
+        }
+    }).then(function(university) {
+        university.queryAllEvents().then(function(events) {
+            res.json({
+                events: events // this will get the events 
+            });
+            res.send(200);
+            next();
+        }).catch(function(error){
+            console.log("Error is recieved by querying for all the events based one University");
+            res.send(400);
+        })
     })
+    .catch(function(error){
+        console.log("Error is recieved by getting University ID");
+        res.send(400);
+    });
 }
-server.get('/events/:ID/follow?user=USERID', getEventFollower);
+server.get('/all_events', eventGetter);
 
 // Post Event
+// This method will let a user create an organization
+// This will return a json object either of success or failure and an orgID
 function creatingOrganization(req, res, next)
 {
-    var organization = Organization.create({
-        orgID: "sdlfkj",
-        name: "sfdslkj",
-        description: "sldkfj",
-        universityID: "85743"
-        // make data correct
-    });
-    
-    organization.save()
-    .then(function() 
+    var promise = getUserFromAuthToken("testToken");
+    promise.then(function(user) 
     {
+         user.creatingOrganization("testToken", "testOrgName");
+         res.json({success: 1, orgID: 'testOrgID'})
          res.send(200); // this indicates success
+         next();
     })
     .catch(function(error)
     {
-        console.log(error + " bet");
+        res.json({success: 0, orgID: 'testOrgID'});
+        console.log("Error in creating orgainzation");
         res.send(400);
     });
-    
-
 }
 server.post('/orgs/create', creatingOrganization);
 
 // Post event
+// This method will let a user create an event
+// This will return a json object either of success or failure and eventID
 function creatingEvent(req, res, next)
 {
-    var event = Event.create({
-        eventID: "sdf",
-        name: "asdf",
-        description: "sdfsdf",
-        data: "sdfsf",
-        location: "sdfsf",
-        orgID: "sdfsdf"
-        
-        // make data correct based on type in the database
-    });
+    var promise = getUserFromAuthToken("testToken");
     
-    event.save()
-    .then(function()
+    promise.then(function(user)
     {
+        user.createEvent("testToken", "testOrgId", "testName", "testDescription", "testDate");
+        res.json({success: 1, eventID: 'testEventID'});
         res.send(200) // success  
     })
     .catch(function(error)
     {
-        console.log(error + "Lamp");
+        console.log("There has been an error in creating an event");
+        res.json({success: 0, eventID: "testEventID"});
         res.send(400) // error
     });
 }
@@ -104,7 +124,7 @@ server.post('/events/create', creatingEvent);
 function addingAdmins(res, req, next)
 {
     // this is the query
-    User.findAll({
+    /*User.findAll({
         where: {
             userID: req.param.ID
         }
@@ -117,23 +137,35 @@ function addingAdmins(res, req, next)
     .catch(function(error){
         console.log("Cool Error");
         res.send(400);
+    });*/
+    
+    var promise = getUserFromAuthToken("testToken");
+    promise.then(function(user){
+        user.addUserAsAdmin("testToken", "testUserEmail", "testOrgID");
+        res.json({success: 1, authToken: 'testAuthToken'});
+        res.send(200);
+    })
+    .catch(function(error){
+        console.log("There has been an error in adding the specified user as an admin")
+        res.json({success: 0, authToken: 'testAuthToken'});
+        res.send(200);
     });
 }
+server.put("/orgs/ID/admins/add", addingAdmins);
 
 
-
-// GET
+// POST
 function logIn(req, res, next)
 {
+    res.json({success: 1, authToken: 'testAuthToken'})
     // dummy method for log in
 }
+server.post('/login', logIn);
 
-server.get('/logIn', logIn);
-
-// GET
+// POST
 function logOut(req, res, next)
 {
     // dummy method for log out
+    res.json({sucess: 1});
 }
-
-server.get('/logOut', logOut);
+server.post('/logout', logOut);

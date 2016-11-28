@@ -1,0 +1,39 @@
+[
+   {
+      "model": "User",
+      "data": {
+          "userID": 1,
+          "name": "John Smith",
+          "email": "john@smith.com",
+          "passwordHash": "password123",
+          "authToken": 27300
+        }
+    },
+    {
+        "model": "University",
+        "data": {
+            "universityID": 1,
+            "name": "Virginia Tech",
+            "email": "vt@vt.edu"
+        }
+    },
+    {
+        "model": "Organization",
+        "data": {
+            "orgID": 1,
+            "name": "CS Club",
+            "description": "A club for CS students"
+        }
+    },
+    {
+        "model": "Event",
+        "data": {
+            "eventID": 1,
+            "name": "CS Club First Meeting",
+            "description": "The CS Club's first meeting of the semester.",
+            "date": "2016-09-17T00:00:00.000Z",
+            "longitude": 100.13,
+            "latitude": 97.33
+        }
+    }
+]
