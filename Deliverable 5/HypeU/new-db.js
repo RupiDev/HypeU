@@ -6,9 +6,9 @@ db.sequelize.sync({force: true}).then(() => {
 }).then(() => {
     return db.Organization.create({name: 'Test Org', hostUniversity: 1});
 }).then(() => {
-    return db.Event.create({name: 'Test Event', description: 'asdfasdf', date: 0, parentOrg: 1});
+    return db.Event.create({name: 'Test Event', description: 'This is the first test event', date: 0, parentOrg: 1});
 }).then(() => {
-    return db.Event.create({name: 'Test Event 2', description: 'hello world', date: 0, parentOrg: 1});
+    return db.Event.create({name: 'Test Event 2', description: 'This is another test event', date: 0, parentOrg: 1});
 }).then(() => {
     return db.User.create({name: 'Test User', email: 'testuser@vt.edu', passwordHash: ''});
 }).then(() => {
